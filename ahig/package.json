@@ -16,7 +16,7 @@
     "framer-motion": "^4.1.13",
     "graphql": "14.6.0",
     "json-stable-stringify": "^1.0.1",
-    "next": "10.2.0",
+    "next": "11.1.0",
     "nookies": "^2.5.2",
     "nprogress": "^0.2.0",
     "react": "^17.0.2",
