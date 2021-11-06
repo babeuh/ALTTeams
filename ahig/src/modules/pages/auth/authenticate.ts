@@ -1,25 +1,60 @@
 import { log } from "../../lib/log";
-import { StoreLoggedInData, LoginValue, LoginStore } from "../../../types";
+import { StoreLoggedInData, UserCredentials, TokenStore } from "../../../types";
 import { Store } from "../../hooks/stores/useStore";
+import { apiVersion } from "../../lib/fetcher";
 
 export const authenticate = async (
-  token: string,
+  userCredentials: UserCredentials,
   store: Store,
-  token_store: LoginStore
+  token_store: TokenStore
 ) => {
-  return new Promise<{ bool: boolean; r: Response }>(async (resolve) => {
-    let r = await fetch("/api/v1/auth", {
+  return new Promise<{ bool: boolean; response: Response }>(async (resolve) => {
+    try {
+      const response = await fetch(`/api/${apiVersion}/auth`, {
+        method: "POST",
+        body: JSON.stringify(userCredentials),
+      });
+      if (response.ok) {
+        log("AUTH", "Successfully Authenticated");
+        const json = await response.json();
+        updateTokenStores(
+          token_store,
+          {
+            accessToken: "skypetoken=" + json["skypeTokenObject"]["skypeToken"],
+            bearerToken: "Bearer " + json["bearerToken"],
+          },
+          store,
+          {
+            bool: true,
+            whenExpire: json["skypeTokenObject"]["expiresIn"],
+            whenChecked: Math.floor(Date.now() / 1000),
+          }
+        );
+        resolve({ bool: true, response });
+      } else {
+        log("AUTH", "Error Authenticating");
+        resolve({ bool: false, response });
+      }
+    } catch (error) {
+      log("AUTH", error);
+    }
+  });
+};
+
+export const refreshST = async (store: Store, token_store: TokenStore) => {
+  return new Promise<{ bool: boolean }>(async (resolve) => {
+    const response = await fetch(`/api/${apiVersion}/refreshST`, {
       method: "POST",
-      headers: { Authorization: token },
+      headers: { Authorization: token_store.bearerToken },
     });
-    if (r.ok) {
-      log("AUTH", "Successfully Authenticated");
-      let json = await r.json();
+    if (response.ok) {
+      log("AUTH", "Successfully refreshed SkypeToken and validated session");
+      const json = await response.json();
       updateTokenStores(
         token_store,
         {
           accessToken: "skypetoken=" + json["skypeToken"],
-          bearerToken: token,
+          bearerToken: token_store.bearerToken,
         },
         store,
         {
@@ -28,16 +63,16 @@ export const authenticate = async (
           whenChecked: Math.floor(Date.now() / 1000),
         }
       );
-      resolve({ bool: true, r });
+      resolve({ bool: true });
     } else {
-      log("AUTH", "Error Authenticating");
-      resolve({ bool: false, r });
+      log("AUTH", "Error Refreshing SkypeToken");
+      resolve({ bool: false });
     }
   });
 };
 
 export const updateTokenStores = (
-  tokenStore: LoginStore,
+  tokenStore: TokenStore,
   tokenStoreLoggedInData: { accessToken: string; bearerToken: string },
   store: Store,
   storeLoggedInData: StoreLoggedInData

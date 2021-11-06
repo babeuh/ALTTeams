@@ -3,11 +3,11 @@ interface GridComponentProps {
   children: any;
 }
 
-export let GridComponent: React.FC<GridComponentProps> = ({
+export const GridComponent: React.FC<GridComponentProps> = ({
   className,
   children,
 }) => {
-  let getClassNames = () => {
+  const getClassNames = () => {
     let classes = "grid w-full h-full ";
     if (className) {
       classes += className;

@@ -9,7 +9,7 @@ import { ReactQueryDevtools } from "react-query/devtools";
 
 Router.events.on("routeChangeStart", (url) => {
   NProgress.start();
-  console.log("%c[ROUTER]", "color: purple", `Navigating to ${url}`);
+  //console.log("%c[ROUTER]", "color: purple", `Navigating to ${url}`);
 });
 Router.events.on("routeChangeComplete", () => NProgress.done());
 Router.events.on("routeChangeError", () => NProgress.done());

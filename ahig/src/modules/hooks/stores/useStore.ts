@@ -3,8 +3,10 @@ import { StoreLoggedInData } from "../../../types";
 
 interface CustomState {
   loggedIn: StoreLoggedInData;
-  ui: {
-    centerMaximized: boolean;
+  teams: {id: string; title: string}[];
+  copnd: {
+    id: string;
+    title: string;
   };
 }
 
@@ -12,6 +14,7 @@ export interface Store extends State {
   state: CustomState;
   setState: (state: CustomState) => void;
 }
+
 export const useStore = create<Store>((set) => ({
   state: {
     loggedIn: {
@@ -19,8 +22,10 @@ export const useStore = create<Store>((set) => ({
       whenExpire: 0,
       whenChecked: 0,
     },
-    ui: {
-      centerMaximized: false,
+    teams: [],
+    copnd: {
+      id: '',
+      title: 'Dashboard'
     },
   },
   setState: (s: CustomState) => set((store: Store) => ({ state: s })),

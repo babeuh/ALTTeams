@@ -1,39 +1,21 @@
 import React from "react";
-import { useQueryClient } from "react-query";
-import { useStore } from "../../modules/hooks/stores/useStore";
-import { AvatarComponent, UserCardComponent } from ".";
+import { UserCardComponent } from "./UserCardComponent";
 
-export let RightBarComponent: React.FC = () => {
-  let store = useStore();
-  let client = useQueryClient();
-  let user = client.getQueryData("me");
-
-  let changeCenterMax = () => {
-    store.setState({
-      ...store.state,
-      ui: { centerMaximized: !store.state.ui.centerMaximized },
-    });
-  };
-  if (user === undefined) {
-    return null;
-  }
-
+export const RightBarComponent: React.FC = () => {
   return (
-    <div className="flex pt-5 flex-col flex-1 sticky top-0 h-screen overflow-x-hidden">
-      <div className="flex mb-7 h-6 items-center">
-        <div className="flex space-x-4 items-center justify-end focus:outline-no-chrome w-full">
-          <button
-            className="flex focus:outline-no-chrome"
-            onClick={() => changeCenterMax()}
-          >
-            <div
-              className="relative inline-block focus:outline-no-chrome"
-              style={{ width: "40px", height: "40px" }}
-            >
-              <AvatarComponent src={user["pfp"]} />
-            </div>
-          </button>
-        </div>
+    <div
+      className="pt-5 sticky top-0 h-screen overflow-x-hidden"
+      style={{
+        display: "grid",
+        gridTemplateRows: "1fr 173px",
+        gap: "25px 00px",
+      }}
+    >
+      <div className="w-full flex flex-col overflow-y-auto mb-3">
+        <h4 className="text-primary-100">People</h4>
+        <h6 className="text-primary-200 mt-3 text-sm font-bold uppercase">
+          ONLINE
+        </h6>
       </div>
       <UserCardComponent />
     </div>

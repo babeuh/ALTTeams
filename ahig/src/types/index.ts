@@ -1,2 +1,2 @@
-export type { LoginValue } from "./login";
-export type { StoreLoggedInData, LoginStore } from "./storeData";
+export type { LoginValue, UserCredentials } from "./login";
+export type { StoreLoggedInData, TokenStore } from "./storeData";

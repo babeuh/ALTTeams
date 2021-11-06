@@ -3,7 +3,7 @@ import { GridComponent } from "../../../components/shared/GridComponent";
 import { FooterComponent } from "../../../components/shared/FooterComponent";
 import { HomeButtonComponent } from "./HomeButtonComponent";
 
-export let PrivacyPolicyPage: React.FC = () => {
+export const PrivacyPolicyPage: React.FC = () => {
   return (
     <>
       <HeadComponent title="Privacy Policy" />

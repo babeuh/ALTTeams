@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-export let HomeButtonComponent: React.FC = () => {
+export const HomeButtonComponent: React.FC = () => {
   const router = useRouter();
 
   const handleClick = (e: any) => {

@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 
-export let SearchBarComponent: React.FC = () => {
+export const SearchBarComponent: React.FC = () => {
   const [text, changeText] = useState("");
 
-  let handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     changeText(e.target.value);
   };
 
   return (
     <>
-      <div className="flex mb-7 h-6 items-center">
+      <div className="flex h-6 items-center" style={{ marginBottom: "28px" }}>
         <div className="flex flex-1 justify-center w-full">
           <div className="relative w-full z-10 flex flex-col">
             <div className="items-center flex w-full bg-primary-700 text-primary-300 transition duration-200 ease-in-out focus-within:text-primary-100 rounded-lg">

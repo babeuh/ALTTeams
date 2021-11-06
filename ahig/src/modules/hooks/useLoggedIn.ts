@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useTokenStore } from "./stores/useTokenStore";
-import { useStore } from "./stores/useStore";
-import { authenticate, updateTokenStores } from "../pages/auth/authenticate";
+import { Store, useStore } from "./stores/useStore";
+import { refreshST, updateTokenStores } from "../pages/auth/authenticate";
+import { TokenStore } from "../../types";
 
-export let useLoggedIn = (config: {
+export const useLoggedIn = (config: {
   redirect: boolean;
   loggedInLink?: string;
   loggedOutLink?: string;
 }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const store = useStore();
-  const token_store = useTokenStore();
+  const store: Store = useStore();
+  const token_store: TokenStore = useTokenStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -22,18 +23,16 @@ export let useLoggedIn = (config: {
           store.state.loggedIn.whenChecked + store.state.loggedIn.whenExpire
         ) {
           setIsLoggedIn(true);
-        }
-        return;
+          return;
+        } //else we continue and refresh our token
       }
+
       try {
-        //check if already have token and then authenticate
+        //check if a token is stored
         if (token_store.bearerToken !== "") {
-          let auth = await authenticate(
-            token_store.bearerToken,
-            store,
-            token_store
-          );
-          if (auth.bool) {
+          //refresh our skypetoken (has benefit of verifying that)
+          const refreshed = await refreshST(store, token_store);
+          if (refreshed.bool) {
             setIsLoggedIn(true);
             if (config.redirect && config.loggedInLink) {
               router.replace(config.loggedInLink);
@@ -41,10 +40,12 @@ export let useLoggedIn = (config: {
             return;
           }
         }
+        //token is invalid or not stored
         if (config.redirect && config.loggedOutLink) {
           router.replace(config.loggedOutLink);
         }
       } catch (error) {
+        //token is invalid or not stored
         updateTokenStores(
           token_store,
           {

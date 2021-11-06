@@ -1,11 +1,9 @@
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import {
-  HeadComponent,
-  GridComponent,
-  LinkComponent,
-  FooterComponent,
-} from "../../../components/shared";
+import { HeadComponent } from "../../../components/shared/HeadComponent";
+import { GridComponent } from "../../../components/shared/GridComponent";
+import { LinkComponent } from "../../../components/shared/LinkComponent";
+import { FooterComponent } from "../../../components/shared/FooterComponent";
 import { useTokenStore } from "../../hooks/stores/useTokenStore";
 import { useStore } from "../../hooks/stores/useStore";
 import { useLoggedIn } from "../../hooks/useLoggedIn";
@@ -13,7 +11,7 @@ import { LoginButtonComponent } from "./LoginButtonComponent";
 import { LoginComponent } from "./LoginComponent";
 import { authenticate } from "./authenticate";
 
-export let LoginPage: React.FC = () => {
+export const LoginPage: React.FC = () => {
   const [loginPressed, setLoginPressed] = useState(false);
   const router = useRouter();
   const store = useStore();
@@ -45,8 +43,8 @@ export let LoginPage: React.FC = () => {
           </div>
           {loginPressed ? (
             <LoginComponent
-              handleSubmit={async (token) => {
-                if ((await authenticate(token, store, token_store)).bool) {
+              handleSubmit={async (userCredentials) => {
+                if ((await authenticate(userCredentials, store, token_store)).bool) {
                   router.push("/dash");
                 }
               }}

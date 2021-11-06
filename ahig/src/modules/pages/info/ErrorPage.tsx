@@ -3,7 +3,7 @@ import { GridComponent } from "../../../components/shared/GridComponent";
 import { FooterComponent } from "../../../components/shared/FooterComponent";
 import { HomeButtonComponent } from "./HomeButtonComponent";
 
-export let ErrorPage: React.FC = () => {
+export const ErrorPage: React.FC = () => {
   return (
     <>
       <HeadComponent title="Error 404" />

@@ -1,9 +1,9 @@
-module.exports = {
-  future: {
-    webpack5: true,
-  },
-  i18n: {
-    locales: ["en-US"],
-    defaultLocale: "en-US",
-  },
+/**
+ * @type {import('next').NextConfig}
+ */
+const nextConfig = {
+  //just default thing
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js']
 };
+
+module.exports = nextConfig

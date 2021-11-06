@@ -3,7 +3,7 @@ import { GridComponent } from "../../../components/shared/GridComponent";
 import { FooterComponent } from "../../../components/shared/FooterComponent";
 import { HomeButtonComponent } from "./HomeButtonComponent";
 
-export let TosPage: React.FC = () => {
+export const TosPage: React.FC = () => {
   return (
     <>
       <HeadComponent title="Privacy Policy" />

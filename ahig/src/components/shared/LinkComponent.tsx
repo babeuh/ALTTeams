@@ -6,7 +6,7 @@ interface LinkComponentProps {
   className?: string;
 }
 
-export let LinkComponent: React.FC<LinkComponentProps> = ({
+export const LinkComponent: React.FC<LinkComponentProps> = ({
   href,
   children,
   className,
@@ -21,7 +21,7 @@ export let LinkComponent: React.FC<LinkComponentProps> = ({
     router.push(href, undefined);
   };
   const getClassName = () => {
-    let def = "text-accent hover:underline";
+    const def = "text-accent hover:underline";
     if (className !== undefined) {
       return className;
     }

@@ -3,7 +3,7 @@ interface LoginButtonComponentProps {
   type?: "button" | "submit" | "reset";
 }
 
-export let LoginButtonComponent: React.FC<LoginButtonComponentProps> = ({
+export const LoginButtonComponent: React.FC<LoginButtonComponentProps> = ({
   onClick,
   type,
 }) => {

@@ -1,22 +1,18 @@
 import { AvatarComponent } from "./AvatarComponent";
 import { useQueryClient } from "react-query";
-import { useStore } from "../../modules/hooks/stores/useStore";
 
-export let UserCardComponent: React.FC = () => {
-  let queryClient = useQueryClient();
-  let store = useStore();
-  let user = queryClient.getQueryData("me");
+export const UserCardComponent: React.FC = () => {
+  const queryClient = useQueryClient();
+  const user = queryClient.getQueryData("me");
 
-  if (store.state.ui.centerMaximized || user === undefined) {
+  if (user === undefined) {
     return null;
   }
 
   return (
-    <div
-      className="flex flex-1 flex-col overflow-y-auto"
-      style={{ marginTop: "68px" }}
-    >
-      <div className="flex justify-between items-end mb-5 max-w-md">
+    <div className="flex flex-col overflow-y-auto mb-3">
+      <h4 className="text-primary-100 mb-3">You</h4>
+      <div className="flex justify-between items-end max-w-md">
         <div
           className="flex flex-col rounded-8 bg-primary-800 w-full"
           style={{ padding: "16px" }}
@@ -35,7 +31,7 @@ export let UserCardComponent: React.FC = () => {
                 <span className="text-primary-100 font-bold overflow-hidden break-all text-left">
                   {user["name"].split(" (")[0]}
                 </span>
-                <span className="text-primary-300 text-left break-all">
+                <span className="text-primary-200 text-left break-all">
                   {"@" + user["email"].split("@")[0]}
                 </span>
               </div>

@@ -9,7 +9,7 @@ const bearerTokenKey = "bearerToken";
 const getDefaultValues = () => {
   if (!isServer) {
     try {
-      let cookies = parseCookies();
+      const cookies = parseCookies();
       return {
         accessToken: cookies[accessTokenKey] || "",
         bearerToken: cookies[bearerTokenKey] || "",

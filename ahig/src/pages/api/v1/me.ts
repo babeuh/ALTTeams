@@ -1,14 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+const main = async (req: NextApiRequest, res: NextApiResponse) => {
   return new Promise<void>(async (resolve) => {
     try {
-      if (!req.cookies["accessToken"]) {
-        res.status(401).send("");
-        return;
-      }
-      let authentication = req.cookies["accessToken"];
-      let r = await fetch(
+      const authentication = req.cookies["accessToken"];
+      const response = await fetch(
         "https://emea.ng.msg.teams.microsoft.com/v1/users/ME/properties",
         {
           headers: {
@@ -19,8 +15,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           method: "GET",
         }
       );
-      let json = await r.json();
-      let userDetails = JSON.parse(json["userDetails"]);
+      const json = await response.json();
+      const userDetails = JSON.parse(json["userDetails"]);
       res.status(200).send({
         name: userDetails["name"],
         email: userDetails["upn"],
@@ -33,3 +29,5 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
   });
 };
+
+export default main;

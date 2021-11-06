@@ -3,7 +3,7 @@ export interface StoreLoggedInData {
   whenExpire: number;
   whenChecked: number;
 }
-export interface LoginStore {
+export interface TokenStore {
   accessToken: string;
   bearerToken: string;
   setTokens: (x: { accessToken: string; bearerToken: string }) => void;

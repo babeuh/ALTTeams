@@ -1,21 +1,17 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+const main = async (req: NextApiRequest, res: NextApiResponse) => {
   return new Promise<void>(async (resolve) => {
     try {
-      if (!req.cookies["bearerToken"]) {
-        res.status(401).send("");
-        return;
-      }
-      let bearer = req.cookies["bearerToken"];
-      let id = req.query["id"];
+      const bearer = req.cookies["bearerToken"];
+      const id = req.query["id"];
 
-      let url = `https://teams.microsoft.com/api/mt/part/emea-02/beta/users/${id}/profilepicturev2`;
-      let cookie = `authtoken=Bearer=${
+      const url = `https://teams.microsoft.com/api/mt/part/emea-02/beta/users/${id}/profilepicturev2`;
+      const cookie = `authtoken=Bearer=${
         bearer.split("Bearer ")[1]
       }&Origin=https://teams.microsoft.com;`;
 
-      let r = await fetch(url, {
+      const response = await fetch(url, {
         method: "GET",
         headers: {
           referer: "https://teams.microsoft.com/_",
@@ -24,15 +20,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         },
       });
 
-      if (!r.ok) {
+      if (!response.ok) {
         res.status(401).send("");
         return;
       }
-      /*let b64 = Buffer.from(await (await r.blob()).arrayBuffer()).toString(
-        "base64"
-      );
-      res.status(200).send({ data: "data:image/jpeg;base64," + b64 });*/
-      let buffer = Buffer.from(await (await r.blob()).arrayBuffer());
+      const buffer = Buffer.from(await (await response.blob()).arrayBuffer());
       res.setHeader("Content-Type", "image/jpeg");
       res.write(buffer);
       res.end();
@@ -43,3 +35,5 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
   });
 };
+
+export default main;
