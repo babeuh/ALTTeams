@@ -1,5 +1,4 @@
 import React from "react";
-import _ from "lodash";
 import { useEffect, useState, useRef } from "react";
 import { useMessages } from "../../modules/hooks/useMessages";
 import { MessageComponent } from "./MessageComponent";
@@ -26,9 +25,7 @@ export const MessageListComponent: React.FC<MessageListComponentProps> = ({
         });
       });
 
-      const sorterFunc = (item) => item.sequenceId;
-      array = _.sortBy(array, [sorterFunc]).sort();
-      setMessagesArray(array);
+      setMessagesArray(array.reverse());
     })();
   }, [messages]);
 
