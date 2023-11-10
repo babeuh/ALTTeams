@@ -10,13 +10,18 @@ import { useLoggedIn } from "../../hooks/useLoggedIn";
 import { LoginButtonComponent } from "./LoginButtonComponent";
 import { LoginComponent } from "./LoginComponent";
 import { authenticate } from "./authenticate";
+import { TitlebarComponent } from "../../../components/shared/TitlebarComponent";
+import { useTauri } from "../../hooks/useTauri";
+import { useTauriStore } from "../../hooks/stores/useTauriStore";
 
 export const LoginPage: React.FC = () => {
+  const loggedIn = useLoggedIn({ redirect: true, loggedInLink: "/dash" });
+  useTauri()
   const [loginPressed, setLoginPressed] = useState(false);
   const router = useRouter();
   const store = useStore();
+  const tauriStore = useTauriStore()
   const token_store = useTokenStore();
-  const loggedIn = useLoggedIn({ redirect: true, loggedInLink: "/dash" });
 
   const handleLoginClick = async () => {
     if (!loggedIn) {
@@ -27,7 +32,10 @@ export const LoginPage: React.FC = () => {
   return (
     <>
       <HeadComponent title="Login" />
-      <GridComponent className="grid-3">
+      <GridComponent
+        className={tauriStore.state.is ? "grid-3-tauri" : "grid-3"}
+      >
+        <TitlebarComponent/>
         <div className="hidden sm:flex" />
         <div className="flex m-auto flex-col p-6 gap-5 bg-primary-800 sm:rounded-8 z-10 sm:w-400 w-full">
           <div className="flex gap-2 flex-col">
@@ -44,7 +52,9 @@ export const LoginPage: React.FC = () => {
           {loginPressed ? (
             <LoginComponent
               handleSubmit={async (userCredentials) => {
-                if ((await authenticate(userCredentials, store, token_store)).bool) {
+                if (
+                  (await authenticate(userCredentials, store, token_store)).bool
+                ) {
                   router.push("/dash");
                 }
               }}

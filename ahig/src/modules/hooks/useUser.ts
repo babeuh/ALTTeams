@@ -3,7 +3,7 @@ import { apiVersion } from "../lib/fetcher";
 
 export const useUser = () => {
   const { data: me } = useQuery("me", fetchUser, {
-    refetchOnWindowFocus: false,
+    staleTime: Infinity
   });
   return me;
 };

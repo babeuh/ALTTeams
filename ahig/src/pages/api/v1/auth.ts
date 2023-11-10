@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import request from "request";
+import { generateJWT, generateRefreshToken } from "../../../modules/jwt";
 
 interface UserCredentials {
   email: string;
@@ -18,10 +19,16 @@ interface CookieObject {
   value: string;
 }
 
-interface SkypeTokenObject {
+interface AccessTokenObject {
   skypeToken: string;
+  expirationTime: number;
   expiresIn: number;
-  tokenType: string;
+}
+
+interface BearerTokenObject {
+  bearerToken: string;
+  expirationTime: number;
+  expiresIn: number;
 }
 
 const fetchLoginObject = (userCredentials: UserCredentials) => {
@@ -93,8 +100,8 @@ const fetchLoginReq = (loginObject: LoginObject) => {
   });
 };
 
-const fetchBearerToken = (estsauthCookie: CookieObject) => {
-  return new Promise<string>((resolve, reject) => {
+const fetchBearerTokenObject = (estsauthCookie: CookieObject) => {
+  return new Promise<BearerTokenObject>((resolve, reject) => {
     var options: request.RequiredUriUrl & request.CoreOptions = {
       method: "GET",
       url: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=token&scope=https%3A%2F%2Fteams.microsoft.com%2F.default%20openid%20profile&client_id=5e3ce6c0-2b1f-4285-8d4b-75ee78787346",
@@ -110,13 +117,23 @@ const fetchBearerToken = (estsauthCookie: CookieObject) => {
       if (response.statusCode !== 302 || !response.headers.location) {
         reject(new Error("Unauthorized"));
       }
-      resolve(response.headers.location.split("=")[1].split("&")[0]);
+
+      resolve({
+        bearerToken: response.headers.location.split("=")[1].split("&")[0],
+        expirationTime:
+          Math.floor(Date.now() / 1000) +
+          Number(response.headers.location.split("=")[3].split("&")[0]) *
+            (10 ^ 6),
+        expiresIn:
+          Number(response.headers.location.split("=")[3].split("&")[0]) *
+          (10 ^ 6),
+      });
     });
   });
 };
 
 const fetchSkypeTokenObject = (bearerToken: string) => {
-  return new Promise<SkypeTokenObject>(async (resolve, reject) => {
+  return new Promise<AccessTokenObject>(async (resolve, reject) => {
     const response = await fetch(
       "https://teams.microsoft.com/api/authsvc/v1.0/authz",
       {
@@ -133,7 +150,10 @@ const fetchSkypeTokenObject = (bearerToken: string) => {
     if (response.status !== 200) {
       reject(new Error("Unauthorized"));
     } else {
-      resolve((await response.json())["tokens"]);
+      let obj = (await response.json())["tokens"];
+      delete obj.tokenType;
+      obj.expirationTime = Math.floor(Date.now() / 1000) + obj.expiresIn;
+      resolve(obj);
     }
   });
 };
@@ -142,7 +162,7 @@ const fetchSkypeTokenObject = (bearerToken: string) => {
 const main = async (req: NextApiRequest, res: NextApiResponse) => {
   return new Promise<void>(async (resolve) => {
     try {
-      if (req.method !== 'POST') {
+      if (req.method !== "POST") {
         res.status(405).send("");
         resolve();
         return;
@@ -152,11 +172,11 @@ const main = async (req: NextApiRequest, res: NextApiResponse) => {
 
       try {
         //Parse Body
-        const json = JSON.parse(req.body)
+        const json = JSON.parse(req.body);
         if (!json.email || !json.password) {
-          throw new Error("Unauthorized")
+          throw new Error("Unauthorized");
         } else {
-          userCredentials = {email: json.email, password: json.password}
+          userCredentials = { email: json.email, password: json.password };
         }
       } catch (error) {
         res.status(401).send("");
@@ -165,23 +185,29 @@ const main = async (req: NextApiRequest, res: NextApiResponse) => {
       }
 
       //Fetch loginObject
-      const loginObject = await fetchLoginObject(userCredentials)
+      const loginObject = await fetchLoginObject(userCredentials);
 
       //Fetch cookies
       const cookies = await fetchLoginReq(loginObject);
 
       //Fetch bearerToken
-      const bearerToken = await fetchBearerToken(
+      const bearerTokenObject = await fetchBearerTokenObject(
         cookies.find((c) => c.name === "ESTSAUTH")
       );
 
-      //Fetch skypetoken
-      const skypeTokenObject = await fetchSkypeTokenObject(bearerToken);
+      //Fetch skypetoken / accessToken
+      const accessTokenObject = await fetchSkypeTokenObject(
+        bearerTokenObject.bearerToken
+      );
+
+      const jwt = generateJWT(bearerTokenObject, accessTokenObject);
+      const refreshToken = generateRefreshToken(userCredentials, bearerTokenObject, accessTokenObject);
 
       //Return Tokens
-      res.status(200).send({ bearerToken, skypeTokenObject });
+      res.status(200).send({jwt,refreshToken});
       resolve();
     } catch (error) {
+      console.log(error)
       const parsed = error.toString().split("Error: ")[1];
 
       if (parsed === "Unauthorized") {

@@ -1,37 +1,40 @@
 import create from "zustand";
-import { parseCookies, setCookie, destroyCookie } from "nookies";
+import { parseCookies, setCookie } from "nookies";
 import { combine } from "zustand/middleware";
 import { isServer } from "../../lib/isServer";
 
-const accessTokenKey = "accessToken";
-const bearerTokenKey = "bearerToken";
+const jwtKey = "token";
+const refreshTokenKey = "refreshToken"
 
 const getDefaultValues = () => {
   if (!isServer) {
     try {
       const cookies = parseCookies();
       return {
-        accessToken: cookies[accessTokenKey] || "",
-        bearerToken: cookies[bearerTokenKey] || "",
+        jwt: cookies[jwtKey] || "",
+        refreshToken: cookies[refreshTokenKey] || "",
       };
     } catch {}
   }
 
   return {
-    accessToken: "",
-    bearerToken: "",
+    jwt: "",
+    refreshToken: "",
   };
 };
 
 export const useTokenStore = create(
   combine(getDefaultValues(), (set) => ({
-    setTokens: (x: { accessToken: string; bearerToken: string }) => {
+    setToken: (jwt: string, refreshToken: string) => {
       try {
-        setCookie(null, accessTokenKey, x.accessToken, { sameSite: true });
-        setCookie(null, bearerTokenKey, x.bearerToken, { sameSite: true });
-      } catch {}
+        setCookie(null, jwtKey, jwt, { sameSite: true });
+        setCookie(null, refreshTokenKey, refreshToken, { sameSite: true });
+        console.log(parseCookies())
+      } catch (err) {
+        console.log(err)
+      }
 
-      set(x);
+      set({ jwt, refreshToken });
     },
   }))
 );

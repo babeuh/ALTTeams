@@ -7,7 +7,7 @@ interface HeadComponentProps {
 export const HeadComponent: React.FC<HeadComponentProps> = ({ title }) => {
   return (
     <Head>
-      <title>{title} | BetterTeams</title>
+      <title>{title} | ALTTeams</title>
     </Head>
   );
 };

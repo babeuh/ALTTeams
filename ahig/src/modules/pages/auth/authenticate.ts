@@ -2,6 +2,7 @@ import { log } from "../../lib/log";
 import { StoreLoggedInData, UserCredentials, TokenStore } from "../../../types";
 import { Store } from "../../hooks/stores/useStore";
 import { apiVersion } from "../../lib/fetcher";
+import jwt from "jsonwebtoken";
 
 export const authenticate = async (
   userCredentials: UserCredentials,
@@ -17,17 +18,17 @@ export const authenticate = async (
       if (response.ok) {
         log("AUTH", "Successfully Authenticated");
         const json = await response.json();
+
+        const token: any = jwt.decode(json.jwt); // have to use any so that I can use token.exp
+        const tokenExpirationDate = token.exp;
+
         updateTokenStores(
           token_store,
-          {
-            accessToken: "skypetoken=" + json["skypeTokenObject"]["skypeToken"],
-            bearerToken: "Bearer " + json["bearerToken"],
-          },
+          { jwt: json.jwt, refreshToken: json.refreshToken },
           store,
           {
             bool: true,
-            whenExpire: json["skypeTokenObject"]["expiresIn"],
-            whenChecked: Math.floor(Date.now() / 1000),
+            whenExpire: tokenExpirationDate,
           }
         );
         resolve({ bool: true, response });
@@ -41,31 +42,31 @@ export const authenticate = async (
   });
 };
 
-export const refreshST = async (store: Store, token_store: TokenStore) => {
+export const refreshJWT = async (store: Store, token_store: TokenStore) => {
   return new Promise<{ bool: boolean }>(async (resolve) => {
-    const response = await fetch(`/api/${apiVersion}/refreshST`, {
+
+    const response = await fetch(`/api/${apiVersion}/refreshTokens`, {
       method: "POST",
-      headers: { Authorization: token_store.bearerToken },
     });
     if (response.ok) {
-      log("AUTH", "Successfully refreshed SkypeToken and validated session");
+      log("AUTH", "Successfully refreshed tokens");
+
       const json = await response.json();
+      const token: any = jwt.decode(json.jwt); // have to use any so that I can use token.exp
+      const tokenExpirationDate = token.exp;
+
       updateTokenStores(
         token_store,
-        {
-          accessToken: "skypetoken=" + json["skypeToken"],
-          bearerToken: token_store.bearerToken,
-        },
+        { jwt: json.jwt, refreshToken: json.refreshToken },
         store,
         {
           bool: true,
-          whenExpire: json["expiresIn"],
-          whenChecked: Math.floor(Date.now() / 1000),
+          whenExpire: tokenExpirationDate,
         }
       );
       resolve({ bool: true });
     } else {
-      log("AUTH", "Error Refreshing SkypeToken");
+      log("AUTH", "Error Refreshing JWT");
       resolve({ bool: false });
     }
   });
@@ -73,14 +74,11 @@ export const refreshST = async (store: Store, token_store: TokenStore) => {
 
 export const updateTokenStores = (
   tokenStore: TokenStore,
-  tokenStoreLoggedInData: { accessToken: string; bearerToken: string },
+  x: { jwt: string; refreshToken: string },
   store: Store,
   storeLoggedInData: StoreLoggedInData
 ) => {
-  tokenStore.setTokens({
-    accessToken: tokenStoreLoggedInData.accessToken,
-    bearerToken: tokenStoreLoggedInData.bearerToken,
-  });
+  tokenStore.setToken(x.jwt, x.refreshToken);
   store.setState({
     ...store.state,
     loggedIn: storeLoggedInData,

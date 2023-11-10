@@ -1,16 +1,17 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { getTokensFromJWT } from "../../../modules/jwt";
 
 const main = async (req: NextApiRequest, res: NextApiResponse) => {
   return new Promise<void>(async (resolve) => {
     try {
-      const authentication = req.cookies["accessToken"];
+      const accessToken = getTokensFromJWT(req.cookies["token"]).accessToken;
       const response = await fetch(
         "https://emea.ng.msg.teams.microsoft.com/v1/users/ME/properties",
         {
           headers: {
             accept: "json",
             "accept-language": "en-US,en;q=0.9",
-            authentication: authentication,
+            authentication: accessToken,
           },
           method: "GET",
         }

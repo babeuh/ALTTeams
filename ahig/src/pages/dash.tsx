@@ -1,3 +1,3 @@
 import { DashPage } from "../modules/pages/dashboard/DashPage";
 
-export default DashPage;
+export default DashPage

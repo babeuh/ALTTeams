@@ -20,7 +20,6 @@ export const useStore = create<Store>((set) => ({
     loggedIn: {
       bool: false,
       whenExpire: 0,
-      whenChecked: 0,
     },
     teams: [],
     copnd: {
@@ -28,5 +27,5 @@ export const useStore = create<Store>((set) => ({
       title: 'Dashboard'
     },
   },
-  setState: (s: CustomState) => set((store: Store) => ({ state: s })),
+  setState: (s: CustomState) => set(() => ({ state: s })),
 }));

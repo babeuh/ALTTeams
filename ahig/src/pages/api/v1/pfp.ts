@@ -1,14 +1,15 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { getTokensFromJWT } from "../../../modules/jwt";
 
 const main = async (req: NextApiRequest, res: NextApiResponse) => {
   return new Promise<void>(async (resolve) => {
     try {
-      const bearer = req.cookies["bearerToken"];
+      const bearerToken = getTokensFromJWT(req.cookies["token"]).bearerToken;
       const id = req.query["id"];
 
       const url = `https://teams.microsoft.com/api/mt/part/emea-02/beta/users/${id}/profilepicturev2`;
       const cookie = `authtoken=Bearer=${
-        bearer.split("Bearer ")[1]
+        bearerToken.split("Bearer ")[1]
       }&Origin=https://teams.microsoft.com;`;
 
       const response = await fetch(url, {

@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useTokenStore } from "./stores/useTokenStore";
 import { Store, useStore } from "./stores/useStore";
-import { refreshST, updateTokenStores } from "../pages/auth/authenticate";
+import { refreshJWT, updateTokenStores } from "../pages/auth/authenticate";
 import { TokenStore } from "../../types";
+import jwt from "jsonwebtoken";
 
 export const useLoggedIn = (config: {
   redirect: boolean;
@@ -18,10 +19,7 @@ export const useLoggedIn = (config: {
   useEffect(() => {
     (async () => {
       if (store.state.loggedIn.bool === true) {
-        if (
-          Math.floor(Date.now() / 1000) <=
-          store.state.loggedIn.whenChecked + store.state.loggedIn.whenExpire
-        ) {
+        if (Math.floor(Date.now() / 1000) <= store.state.loggedIn.whenExpire) {
           setIsLoggedIn(true);
           return;
         } //else we continue and refresh our token
@@ -29,9 +27,20 @@ export const useLoggedIn = (config: {
 
       try {
         //check if a token is stored
-        if (token_store.bearerToken !== "") {
-          //refresh our skypetoken (has benefit of verifying that)
-          const refreshed = await refreshST(store, token_store);
+        if (token_store.refreshToken !== "") {
+          if (token_store.jwt !== "") {
+            const jwebtoken: any = jwt.decode(token_store.jwt); // have to use any so that I can use token.exp
+            const tokenExpirationDate = jwebtoken.exp;
+            if (Math.floor(Date.now() / 1000) <= tokenExpirationDate) {
+              setIsLoggedIn(true);
+              if (config.redirect && config.loggedInLink) {
+                router.replace(config.loggedInLink);
+              }
+              return;
+            }
+          }
+          //refresh our skypetoken
+          const refreshed = await refreshJWT(store, token_store);
           if (refreshed.bool) {
             setIsLoggedIn(true);
             if (config.redirect && config.loggedInLink) {
@@ -48,15 +57,11 @@ export const useLoggedIn = (config: {
         //token is invalid or not stored
         updateTokenStores(
           token_store,
-          {
-            accessToken: token_store.accessToken,
-            bearerToken: token_store.bearerToken,
-          },
+          { jwt: token_store.jwt, refreshToken: token_store.refreshToken },
           store,
           {
             bool: false,
             whenExpire: 0,
-            whenChecked: Math.floor(Date.now() / 1000),
           }
         );
         if (config.redirect && config.loggedOutLink) {
@@ -64,7 +69,9 @@ export const useLoggedIn = (config: {
         }
       }
     })();
-  }, []);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.loggedInLink, config.loggedOutLink, config.redirect]);
 
   return isLoggedIn;
 };

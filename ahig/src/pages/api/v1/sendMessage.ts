@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { getTokensFromJWT } from "../../../modules/jwt";
 
 interface jsonBody {
   content: string;
@@ -32,12 +33,12 @@ const main = async (req: NextApiRequest, res: NextApiResponse) => {
         resolve();
         return;
       }
-      if (!req.query["teamId"]){
+      if (!req.query["teamId"]) {
         res.status(400).send("");
         return;
       }
 
-      const authentication = req.cookies["accessToken"];
+      const accessToken = getTokensFromJWT(req.cookies["token"]).accessToken;
 
       let jsonBody: jsonBody;
       try {
@@ -57,7 +58,7 @@ const main = async (req: NextApiRequest, res: NextApiResponse) => {
           headers: {
             accept: "json",
             "accept-language": "en-US,en;q=0.9",
-            authentication: authentication,
+            authentication: accessToken,
             "content-type": "application/json",
           },
           body: JSON.stringify(jsonBody),
@@ -68,7 +69,6 @@ const main = async (req: NextApiRequest, res: NextApiResponse) => {
 
       res.status(response.status).send("");
       resolve();
-
     } catch (error) {
       res.status(500).send("");
       resolve();

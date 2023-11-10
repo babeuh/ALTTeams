@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html>
+  <script>
+    let key = __TAURI_INVOKE_KEY__;
+    document.location.replace(`http://localhost:3000?tauri_key=${key}`);
+  </script>
+  <body>
+  </body>
+</html>

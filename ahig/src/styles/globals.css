@@ -94,6 +94,10 @@ html {
   grid-template-rows: 1fr auto 1fr;
 }
 
+.grid-3-tauri {
+  grid-template-rows: auto auto 1fr;
+}
+
 .h-screen {
   height: calc(100vh - var(--screen-height-reduction));
 }

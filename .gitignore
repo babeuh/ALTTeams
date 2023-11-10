@@ -2,9 +2,16 @@
 
 # dependencies
 node_modules
+.yarn
 
 # next.js
 */.next/
+
+# .env files
+*/**/setenvs.ps1
+
+#local files
+/TODO.md
 
 # debug
 npm-debug.log*

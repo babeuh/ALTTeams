@@ -1,17 +1,19 @@
 {
   "name": "ahig",
-  "private": "true",
   "version": "1.1.0",
   "scripts": {
     "dev": "next",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prod": "yarn lint && yarn build && yarn start"
+    "test_prod": "yarn lint && yarn build && yarn start"
   },
   "dependencies": {
     "@tailwindcss/line-clamp": "^0.2.0",
+    "@tauri-apps/api": "^1.0.0-beta.8",
+    "@tsndr/cloudflare-worker-jwt": "^1.1.5",
     "json-stable-stringify": "^1.0.1",
+    "jsonwebtoken": "^8.5.1",
     "next": "12.0.2",
     "nookies": "^2.5.2",
     "nprogress": "^0.2.0",
@@ -25,6 +27,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/jsonwebtoken": "^8.5.6",
     "@types/nprogress": "^0.2.0",
     "@types/react": "^17.0.4",
     "@types/request": "^2.48.5",

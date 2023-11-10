@@ -7,6 +7,7 @@ export const GridComponent: React.FC<GridComponentProps> = ({
   className,
   children,
 }) => {
+
   const getClassNames = () => {
     let classes = "grid w-full h-full ";
     if (className) {
